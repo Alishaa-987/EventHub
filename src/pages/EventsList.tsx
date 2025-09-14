@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Users, ArrowLeft } from "lucide-react";
+import { Calendar, MapPin, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
+import { useAuth } from "@/context/AuthContext";
+import Navbar from "@/components/Navbar";
 
 const EventsList = () => {
   const { events } = useEvents();
+  const { user } = useAuth();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -18,25 +21,7 @@ const EventsList = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-hero-gradient to-background">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link to="/">
-              <Button variant="outline" size="sm" className="hover-scale">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Home
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Upcoming Events
-              </h1>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Events Grid */}
       <main className="container mx-auto px-4 py-8">
@@ -79,12 +64,19 @@ const EventsList = () => {
               </CardContent>
               
               <CardFooter>
-                <Link to={`/register/${event.id}`} className="w-full">
-                  <Button className="w-full event-gradient hover-shadow transition-all duration-300">
-                    <Users className="h-4 w-4 mr-2" />
-                    Register Now
+                {user?.role === 'student' || !user ? (
+                  <Link to={user ? `/register/${event.id}` : '/login'} className="w-full">
+                    <Button className="w-full event-gradient hover-shadow transition-all duration-300">
+                      <Users className="h-4 w-4 mr-2" />
+                      {user ? 'Register Now' : 'Login to Register'}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" className="w-full" disabled>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Admin View
                   </Button>
-                </Link>
+                )}
               </CardFooter>
             </Card>
           ))}

@@ -22,6 +22,7 @@ interface EventContextType {
   events: Event[];
   registrations: Registration[];
   addRegistration: (registration: Omit<Registration, 'id' | 'timestamp'>) => void;
+  addEvent: (event: Omit<Event, 'id'>) => void;
   getEventById: (id: string) => Event | undefined;
 }
 
@@ -64,7 +65,7 @@ const mockEvents: Event[] = [
 ];
 
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [events] = useState<Event[]>(mockEvents);
+  const [events, setEvents] = useState<Event[]>(mockEvents);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
 
   const addRegistration = (registration: Omit<Registration, 'id' | 'timestamp'>) => {
@@ -76,6 +77,14 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setRegistrations(prev => [...prev, newRegistration]);
   };
 
+  const addEvent = (event: Omit<Event, 'id'>) => {
+    const newEvent: Event = {
+      ...event,
+      id: Date.now().toString()
+    };
+    setEvents(prev => [...prev, newEvent]);
+  };
+
   const getEventById = (id: string) => {
     return events.find(event => event.id === id);
   };
@@ -85,6 +94,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       events,
       registrations,
       addRegistration,
+      addEvent,
       getEventById
     }}>
       {children}

@@ -2,10 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Calendar, Home, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 
 const SuccessPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-hero-gradient to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-hero-gradient to-background">
+      <Navbar />
+      <div className="flex items-center justify-center p-4 min-h-[calc(100vh-4rem)]">
       <Card className="w-full max-w-md bg-card/70 backdrop-blur-sm border-border/50 card-shadow animate-scale-in">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto mb-4 animate-bounce">
@@ -49,6 +52,7 @@ const SuccessPage = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

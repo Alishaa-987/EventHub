@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,15 +6,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, MapPin, ArrowLeft, User, Mail, Phone, Loader2 } from "lucide-react";
 import { useEvents } from "@/context/EventContext";
+import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
 
 const RegisterForm = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { getEventById, addRegistration } = useEvents();
+  const { user } = useAuth();
   const { toast } = useToast();
   
   const event = eventId ? getEventById(eventId) : null;
+
+  // Redirect if not logged in or not a student
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (user.role !== 'student') {
+      navigate('/events');
+      return;
+    }
+  }, [user, navigate]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -118,11 +133,16 @@ const RegisterForm = () => {
     );
   }
 
+  if (!user || user.role !== 'student') {
+    return null; // Will redirect in useEffect
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-hero-gradient to-background">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center space-x-4">
+      <Navbar />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center space-x-4 mb-8">
           <Link to="/events">
             <Button variant="outline" size="sm" className="hover-scale">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -136,9 +156,8 @@ const RegisterForm = () => {
             </h1>
           </div>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
+      
         <div className="max-w-2xl mx-auto">
           {/* Event Details Card */}
           <Card className="mb-8 bg-card/70 backdrop-blur-sm border-border/50 card-shadow animate-fade-in">
@@ -245,7 +264,7 @@ const RegisterForm = () => {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
