@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, MapPin, ArrowLeft, Loader2, Plus } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Loader2, Plus, ImagePlus, X } from "lucide-react";
 import { useEvents } from "@/context/EventContext";
 import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -18,11 +19,13 @@ const CreateEvent = () => {
     title: '',
     date: '',
     description: '',
-    location: ''
+    location: '',
+    image: ''
   });
   
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -52,7 +55,11 @@ const CreateEvent = () => {
     if (!formData.location.trim()) {
       newErrors.location = 'Event location is required';
     }
-    
+
+    if (!formData.image) {
+      newErrors.image = 'Event image is required to make it presentable';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -72,7 +79,8 @@ const CreateEvent = () => {
         title: formData.title,
         date: formData.date,
         description: formData.description,
-        location: formData.location
+        location: formData.location,
+        image: formData.image
       });
       
       toast({
@@ -99,11 +107,29 @@ const CreateEvent = () => {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setErrors(prev => ({ ...prev, image: 'Please select a valid image file' }));
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors(prev => ({ ...prev, image: 'Image must be under 5MB' }));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleInputChange('image', reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-hero-gradient to-background">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center space-x-4">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center space-x-4 mb-8">
           <Link to="/admin">
             <Button variant="outline" size="sm" className="hover-scale">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -117,9 +143,7 @@ const CreateEvent = () => {
             </h1>
           </div>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Card className="bg-card/70 backdrop-blur-sm border-border/50 card-shadow animate-scale-in">
             <CardHeader>
@@ -130,6 +154,47 @@ const CreateEvent = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Image Upload — Required */}
+                <div className="space-y-2">
+                  <Label className="flex items-center">
+                    <ImagePlus className="h-4 w-4 mr-2" />
+                    Event Image * <span className="text-xs text-muted-foreground ml-2">(Required)</span>
+                  </Label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={isLoading}
+                  />
+                  {formData.image ? (
+                    <div className="relative group rounded-xl overflow-hidden border-2 border-primary/30">
+                      <img src={formData.image} alt="Event preview" className="w-full h-56 object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('image', '')}
+                        className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`w-full h-56 border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 transition-all hover:border-primary hover:bg-primary/5 ${errors.image ? 'border-destructive' : 'border-border'}`}
+                    >
+                      <ImagePlus className="h-10 w-10 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Click to upload event image</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG up to 5MB</p>
+                    </button>
+                  )}
+                  {errors.image && (
+                    <p className="text-sm text-destructive">{errors.image}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="title" className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
@@ -237,7 +302,7 @@ const CreateEvent = () => {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
