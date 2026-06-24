@@ -23,6 +23,8 @@ interface EventContextType {
   registrations: Registration[];
   addRegistration: (registration: Omit<Registration, 'id' | 'timestamp'>) => void;
   addEvent: (event: Omit<Event, 'id'>) => void;
+  updateEvent: (id: string, event: Omit<Event, 'id'>) => void;
+  deleteEvent: (id: string) => void;
   getEventById: (id: string) => Event | undefined;
 }
 
@@ -85,6 +87,15 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setEvents(prev => [...prev, newEvent]);
   };
 
+  const updateEvent = (id: string, event: Omit<Event, 'id'>) => {
+    setEvents(prev => prev.map(e => (e.id === id ? { ...event, id } : e)));
+  };
+
+  const deleteEvent = (id: string) => {
+    setEvents(prev => prev.filter(e => e.id !== id));
+    setRegistrations(prev => prev.filter(r => r.eventId !== id));
+  };
+
   const getEventById = (id: string) => {
     return events.find(event => event.id === id);
   };
@@ -95,6 +106,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       registrations,
       addRegistration,
       addEvent,
+      updateEvent,
+      deleteEvent,
       getEventById
     }}>
       {children}
