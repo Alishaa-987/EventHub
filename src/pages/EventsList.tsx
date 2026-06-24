@@ -41,8 +41,13 @@ const EventsList = () => {
                 animationDelay: `${index * 0.1}s`
               }}
             >
-              <div className="h-48 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <Calendar className="h-16 w-16 text-primary/60" />
+              <div className="h-48 overflow-hidden relative">
+                <img
+                  src={event.image}
+                  alt={event.title}
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
               </div>
               
               <CardHeader>

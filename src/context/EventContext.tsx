@@ -6,7 +6,7 @@ export interface Event {
   date: string;
   description: string;
   location: string;
-  image?: string;
+  image: string;
 }
 
 export interface Registration {
@@ -33,34 +33,34 @@ const mockEvents: Event[] = [
   {
     id: '1',
     title: 'React Fundamentals Workshop',
-    date: '2024-12-15',
+    date: '2025-12-15',
     description: 'Learn React fundamentals in this comprehensive 3-hour session covering components, state, props, and modern React patterns.',
     location: 'Saylani Tech Center, FSD',
-    image: '/api/placeholder/400/250'
+    image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80'
   },
   {
     id: '2',
     title: 'Advanced JavaScript Techniques',
-    date: '2024-12-20',
+    date: '2025-12-20',
     description: 'Deep dive into advanced JavaScript concepts including closures, prototypes, async programming, and ES6+ features.',
     location: 'Tech Hub, Karachi',
-    image: '/api/placeholder/400/250'
+    image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=800&q=80'
   },
   {
     id: '3',
     title: 'UI/UX Design Masterclass',
-    date: '2024-12-25',
+    date: '2025-12-25',
     description: 'Master the art of user interface and experience design with hands-on projects and real-world examples.',
     location: 'Design Studio, Lahore',
-    image: '/api/placeholder/400/250'
+    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b8?w=800&q=80'
   },
   {
     id: '4',
     title: 'Full Stack Development Bootcamp',
-    date: '2025-01-10',
+    date: '2026-01-10',
     description: 'Complete bootcamp covering frontend, backend, and database technologies for modern web development.',
     location: 'Code Academy, Islamabad',
-    image: '/api/placeholder/400/250'
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=80'
   }
 ];
 

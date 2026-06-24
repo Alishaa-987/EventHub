@@ -160,9 +160,15 @@ const RegisterForm = () => {
       
         <div className="max-w-2xl mx-auto">
           {/* Event Details Card */}
-          <Card className="mb-8 bg-card/70 backdrop-blur-sm border-border/50 card-shadow animate-fade-in">
+          <Card className="mb-8 bg-card/70 backdrop-blur-sm border-border/50 card-shadow animate-fade-in overflow-hidden">
+            <div className="h-64 overflow-hidden relative">
+              <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              <div className="absolute bottom-4 left-6 right-6 text-white">
+                <h2 className="text-3xl font-bold drop-shadow-lg">{event.title}</h2>
+              </div>
+            </div>
             <CardHeader>
-              <CardTitle className="text-2xl">{event.title}</CardTitle>
               <div className="space-y-2">
                 <CardDescription className="flex items-center text-lg">
                   <Calendar className="h-5 w-5 mr-2" />
