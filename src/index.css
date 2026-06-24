@@ -8,41 +8,41 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 30 40% 98%;
+    --foreground: 270 50% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 270 50% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 270 50% 12%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 270 75% 45%;
+    --primary-foreground: 30 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 280 30% 95%;
+    --secondary-foreground: 270 50% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 280 25% 95%;
+    --muted-foreground: 270 15% 45%;
 
-    --accent: 142 76% 36%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 15 90% 58%;
+    --accent-foreground: 30 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221 83% 53%;
+    --border: 280 20% 88%;
+    --input: 280 20% 88%;
+    --ring: 270 75% 45%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     /* Event-specific colors */
-    --event-gradient: linear-gradient(135deg, hsl(221 83% 53%), hsl(142 76% 36%));
-    --hero-gradient: linear-gradient(135deg, hsl(221 83% 53% / 0.1), hsl(142 76% 36% / 0.1));
-    --card-shadow: 0 10px 25px -5px hsl(221 83% 53% / 0.1);
-    --hover-shadow: 0 20px 40px -10px hsl(221 83% 53% / 0.2);
+    --event-gradient: linear-gradient(135deg, hsl(270 75% 45%), hsl(15 90% 58%));
+    --hero-gradient: linear-gradient(135deg, hsl(270 75% 45% / 0.08), hsl(15 90% 58% / 0.08));
+    --card-shadow: 0 10px 30px -10px hsl(270 75% 45% / 0.25);
+    --hover-shadow: 0 25px 50px -12px hsl(270 75% 45% / 0.35);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
