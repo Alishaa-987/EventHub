@@ -1,14 +1,35 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin, Users, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 const EventsList = () => {
-  const { events } = useEvents();
+  const { events, deleteEvent } = useEvents();
   const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handleDelete = (id: string, title: string) => {
+    deleteEvent(id);
+    toast({
+      title: "Event Deleted",
+      description: `"${title}" has been removed.`,
+    });
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -48,6 +69,39 @@ const EventsList = () => {
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                {user?.role === 'admin' && (
+                  <div className="absolute top-3 right-3 flex gap-2">
+                    <Link to={`/admin/edit-event/${event.id}`}>
+                      <Button size="icon" variant="secondary" className="h-9 w-9 rounded-full shadow-lg hover-scale">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="icon" variant="destructive" className="h-9 w-9 rounded-full shadow-lg hover-scale">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete "{event.title}"?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently remove the event and all its registrations. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(event.id, event.title)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
               </div>
               
               <CardHeader>
@@ -77,10 +131,39 @@ const EventsList = () => {
                     </Button>
                   </Link>
                 ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Admin View
-                  </Button>
+                  <div className="flex gap-2 w-full">
+                    <Link to={`/admin/edit-event/${event.id}`} className="flex-1">
+                      <Button variant="outline" className="w-full hover-scale">
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                    </Link>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" className="flex-1 hover-scale">
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete "{event.title}"?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently remove the event and all its registrations. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(event.id, event.title)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 )}
               </CardFooter>
             </Card>

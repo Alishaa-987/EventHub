@@ -1,20 +1,22 @@
-import { useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, MapPin, ArrowLeft, Loader2, Plus, ImagePlus, X } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Loader2, Plus, ImagePlus, X, Save } from "lucide-react";
 import { useEvents } from "@/context/EventContext";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
-  const { addEvent } = useEvents();
+  const { eventId } = useParams();
+  const { addEvent, updateEvent, getEventById } = useEvents();
   const { toast } = useToast();
-  
+  const isEdit = Boolean(eventId);
+
   const [formData, setFormData] = useState({
     title: '',
     date: '',
@@ -22,10 +24,27 @@ const CreateEvent = () => {
     location: '',
     image: ''
   });
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEdit && eventId) {
+      const ev = getEventById(eventId);
+      if (ev) {
+        setFormData({
+          title: ev.title,
+          date: ev.date,
+          description: ev.description,
+          location: ev.location,
+          image: ev.image,
+        });
+      } else {
+        navigate('/admin');
+      }
+    }
+  }, [isEdit, eventId, getEventById, navigate]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -36,7 +55,7 @@ const CreateEvent = () => {
     
     if (!formData.date) {
       newErrors.date = 'Event date is required';
-    } else {
+    } else if (!isEdit) {
       const eventDate = new Date(formData.date);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -74,24 +93,33 @@ const CreateEvent = () => {
     try {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      addEvent({
+
+      const payload = {
         title: formData.title,
         date: formData.date,
         description: formData.description,
         location: formData.location,
-        image: formData.image
-      });
-      
-      toast({
-        title: "Event Created Successfully!",
-        description: `${formData.title} has been added to the events list.`,
-      });
-      
+        image: formData.image,
+      };
+
+      if (isEdit && eventId) {
+        updateEvent(eventId, payload);
+        toast({
+          title: "Event Updated Successfully!",
+          description: `${formData.title} has been updated.`,
+        });
+      } else {
+        addEvent(payload);
+        toast({
+          title: "Event Created Successfully!",
+          description: `${formData.title} has been added to the events list.`,
+        });
+      }
+
       navigate('/admin');
     } catch (error) {
       toast({
-        title: "Failed to Create Event",
+        title: isEdit ? "Failed to Update Event" : "Failed to Create Event",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       });
@@ -137,9 +165,9 @@ const CreateEvent = () => {
             </Button>
           </Link>
           <div className="flex items-center space-x-2">
-            <Plus className="h-8 w-8 text-primary" />
+            {isEdit ? <Save className="h-8 w-8 text-primary" /> : <Plus className="h-8 w-8 text-primary" />}
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Create New Event
+              {isEdit ? 'Edit Event' : 'Create New Event'}
             </h1>
           </div>
         </div>
@@ -147,9 +175,9 @@ const CreateEvent = () => {
         <div className="max-w-2xl mx-auto">
           <Card className="bg-card/70 backdrop-blur-sm border-border/50 card-shadow animate-scale-in">
             <CardHeader>
-              <CardTitle className="text-2xl">Event Details</CardTitle>
+              <CardTitle className="text-2xl">{isEdit ? 'Update Event Details' : 'Event Details'}</CardTitle>
               <CardDescription>
-                Fill in the information below to create a new event for students to register
+                {isEdit ? 'Modify the event information below' : 'Fill in the information below to create a new event for students to register'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -226,7 +254,7 @@ const CreateEvent = () => {
                     onChange={(e) => handleInputChange('date', e.target.value)}
                     disabled={isLoading}
                     className={errors.date ? 'border-destructive' : ''}
-                    min={new Date().toISOString().split('T')[0]}
+                    min={isEdit ? undefined : new Date().toISOString().split('T')[0]}
                   />
                   {errors.date && (
                     <p className="text-sm text-destructive">{errors.date}</p>
@@ -288,12 +316,12 @@ const CreateEvent = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Creating Event...
+                        {isEdit ? 'Updating Event...' : 'Creating Event...'}
                       </>
                     ) : (
                       <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create Event
+                        {isEdit ? <Save className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                        {isEdit ? 'Save Changes' : 'Create Event'}
                       </>
                     )}
                   </Button>
