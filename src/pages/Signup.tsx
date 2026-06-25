@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Mail, Lock, User, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -20,7 +19,7 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: '' as 'admin' | 'student' | ''
+    role: 'student' as 'student'
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +50,7 @@ const Signup = () => {
       setError('Passwords do not match');
       return false;
     }
-    
-    if (!formData.role) {
-      setError('Please select your role');
-      return false;
-    }
-    
+
     return true;
   };
 
@@ -69,11 +63,13 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
+      // Public signups are always created as 'student'. Admin accounts
+      // must be provisioned out-of-band — never self-assignable from the UI.
       const success = await signup(
         formData.name,
         formData.email,
         formData.password,
-        formData.role as 'admin' | 'student'
+        'student'
       );
       
       if (success) {
@@ -147,23 +143,6 @@ const Signup = () => {
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 disabled={isLoading}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Account Type</Label>
-              <Select
-                value={formData.role}
-                onValueChange={(value: 'admin' | 'student') => handleInputChange('role', value)}
-                disabled={isLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Student - Register for events</SelectItem>
-                  <SelectItem value="admin">Admin - Create and manage events</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-2">
