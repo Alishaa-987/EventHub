@@ -18,20 +18,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Server-side admin allowlist. Role is NEVER trusted from client storage.
+// In production this check must live on the backend (Firebase/Supabase rules).
+const ADMIN_EMAILS = new Set<string>([
+  'admin@example.com',
+]);
+
+const deriveRole = (email: string): 'admin' | 'student' =>
+  ADMIN_EMAILS.has(email.toLowerCase()) ? 'admin' : 'student';
+
 // Mock users for demo (replace with Firebase Auth)
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin'
-  },
-  {
-    id: '2',
-    name: 'Student User', 
-    email: 'student@example.com',
-    role: 'student'
-  }
+const mockUsers: Omit<User, 'role'>[] = [
+  { id: '1', name: 'Admin User', email: 'admin@example.com' },
+  { id: '2', name: 'Student User', email: 'student@example.com' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -39,10 +38,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
+    // Check for stored user session. Role is ALWAYS recomputed from the
+    // server-side allowlist — never trusted from localStorage to prevent
+    // privilege escalation via DevTools tampering.
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsed = JSON.parse(storedUser) as Partial<User>;
+        if (parsed.email && parsed.id && parsed.name) {
+          setUser({
+            id: parsed.id,
+            name: parsed.name,
+            email: parsed.email,
+            role: deriveRole(parsed.email),
+          });
+        }
+      } catch {
+        localStorage.removeItem('user');
+      }
     }
     setIsLoading(false);
   }, []);
@@ -53,12 +66,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Find user (in real app, this would be Firebase Auth)
     const foundUser = mockUsers.find(u => u.email === email);
-    
-    if (foundUser && password === 'password123') { // Mock password check
-      setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
+    if (foundUser && password === 'password123') {
+      const authed: User = { ...foundUser, role: deriveRole(foundUser.email) };
+      setUser(authed);
+      // Persist only identity fields. Role is derived on load.
+      localStorage.setItem('user', JSON.stringify({
+        id: authed.id, name: authed.name, email: authed.email,
+      }));
       setIsLoading(false);
       return true;
     }
@@ -67,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
-  const signup = async (name: string, email: string, password: string, role: 'admin' | 'student'): Promise<boolean> => {
+  const signup = async (name: string, email: string, _password: string, _role: 'admin' | 'student'): Promise<boolean> => {
     setIsLoading(true);
     
     // Simulate API call
@@ -80,17 +95,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     }
     
-    // Create new user
+    // Role is ALWAYS assigned server-side via the allowlist — the client
+    // cannot self-assign admin. New public signups are always 'student'.
     const newUser: User = {
       id: Date.now().toString(),
       name,
       email,
-      role
+      role: deriveRole(email),
     };
-    
-    mockUsers.push(newUser);
+
+    mockUsers.push({ id: newUser.id, name: newUser.name, email: newUser.email });
     setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
+    localStorage.setItem('user', JSON.stringify({
+      id: newUser.id, name: newUser.name, email: newUser.email,
+    }));
     setIsLoading(false);
     return true;
   };
