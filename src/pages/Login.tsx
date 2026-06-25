@@ -87,7 +87,7 @@ const Login = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email (try: admin@example.com or student@example.com)"
+                placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 disabled={isLoading}
@@ -102,7 +102,7 @@ const Login = () => {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password (try: password123)"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 disabled={isLoading}
@@ -134,11 +134,6 @@ const Login = () => {
             </p>
           </div>
 
-          <div className="mt-4 p-3 bg-muted/30 rounded-lg text-xs text-muted-foreground">
-            <p className="font-medium mb-1">Demo Accounts:</p>
-            <p>Admin: admin@example.com / password123</p>
-            <p>Student: student@example.com / password123</p>
-          </div>
         </CardContent>
       </Card>
     </div>

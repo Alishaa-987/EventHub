@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -32,9 +33,9 @@ const App = () => (
               <Route path="/success" element={<SuccessPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/create-event" element={<CreateEvent />} />
-              <Route path="/admin/edit-event/:eventId" element={<CreateEvent />} />
+              <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/create-event" element={<ProtectedRoute requireAdmin><CreateEvent /></ProtectedRoute>} />
+              <Route path="/admin/edit-event/:eventId" element={<ProtectedRoute requireAdmin><CreateEvent /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
